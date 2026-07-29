@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
@@ -238,7 +239,7 @@ public class PentahoAgreementProvider implements IAgreementProvider {
 
     private static String value(List<Object> row, int index) {
         Object value = row.get(index);
-        return value == null ? null : String.valueOf(value);
+        return value == null ? null : HtmlUtils.htmlUnescape(String.valueOf(value));
     }
 
     private static Long toLong(String value) {
