@@ -31,15 +31,15 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.sep-es-br:openpmo-plugin-agreement-interface:1.0.5'
-    implementation 'com.github.sep-es-br:openpmo-plugin-agreement-goves:1.0.9'
+    implementation 'com.github.sep-es-br:openpmo-plugin-agreement-interface:1.0.6'
+    implementation 'com.github.sep-es-br:openpmo-plugin-agreement-goves:1.0.10'
 }
 ```
 
 ## Uso no OpenPMO API
 
 ```properties
-app.agreement.parser.repository=com.github.sep-es-br:openpmo-plugin-agreement-goves:1.0.9
+app.agreement.parser.repository=com.github.sep-es-br:openpmo-plugin-agreement-goves:1.0.10
 ```
 
 O contrato permanece como dependência fixa da aplicação. A coordenada acima controla a inclusão da implementação GOVES.

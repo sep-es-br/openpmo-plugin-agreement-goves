@@ -14,6 +14,7 @@ import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -84,7 +85,7 @@ public class PentahoAgreementProvider implements IAgreementProvider {
         );
 
         return response.getResultset().stream()
-            .map(row -> toAgreement(type, year, organization, row))
+            .map(row -> toAgreement(type, year, organization, response, row))
             .collect(Collectors.toList());
     }
 
@@ -106,7 +107,7 @@ public class PentahoAgreementProvider implements IAgreementProvider {
 
         return response.getResultset().stream()
             .findFirst()
-            .map(row -> toAgreementDetail(type, row))
+            .map(row -> toAgreementDetail(type, response, row))
             .orElse(null);
     }
 
@@ -171,6 +172,7 @@ public class PentahoAgreementProvider implements IAgreementProvider {
         AgreementType type,
         Long year,
         AgreementOrganizationDto organization,
+        PentahoQueryResponse response,
         List<Object> row
     ) {
         AgreementDto dto = new AgreementDto();
@@ -184,11 +186,16 @@ public class PentahoAgreementProvider implements IAgreementProvider {
         dto.setPartyName(value(row, 3));
         dto.setPartyCnpj(value(row, 4));
 
+        if (type == AgreementType.COOPERATION) {
+            dto.setNumOriginal(columnValue(response, row, "numOriginal", 5));
+        }
+
         return dto;
     }
 
     private AgreementDto toAgreementDetail(
         AgreementType type,
+        PentahoQueryResponse response,
         List<Object> row
     ) {
         AgreementDto dto = new AgreementDto();
@@ -209,6 +216,7 @@ public class PentahoAgreementProvider implements IAgreementProvider {
             dto.setPartyName(value(row, 4));
             dto.setPartyCnpj(value(row, 5));
             dto.setYear(toLong(value(row, 6)));
+            dto.setNumOriginal(columnValue(response, row, "numOriginal", 7));
         }
 
         return dto;
@@ -240,6 +248,38 @@ public class PentahoAgreementProvider implements IAgreementProvider {
     private static String value(List<Object> row, int index) {
         Object value = row.get(index);
         return value == null ? null : HtmlUtils.htmlUnescape(String.valueOf(value));
+    }
+
+    private static String columnValue(
+        PentahoQueryResponse response,
+        List<Object> row,
+        String columnName,
+        int fallbackIndex
+    ) {
+        String normalizedColumnName = normalizeColumnName(columnName);
+
+        for (Map<String, Object> column : response.getMetadata()) {
+            Object name = column.get("colName");
+            Object index = column.get("colIndex");
+
+            if (name != null
+                && index instanceof Number
+                && normalizedColumnName.equals(normalizeColumnName(String.valueOf(name)))) {
+                return optionalValue(row, ((Number) index).intValue());
+            }
+        }
+
+        return optionalValue(row, fallbackIndex);
+    }
+
+    private static String optionalValue(List<Object> row, int index) {
+        return index >= 0 && index < row.size() ? value(row, index) : null;
+    }
+
+    private static String normalizeColumnName(String value) {
+        return value == null
+            ? ""
+            : value.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
     }
 
     private static Long toLong(String value) {

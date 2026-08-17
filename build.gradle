@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.github.sep-es-br'
-version = '1.0.9'
+version = '1.0.10'
 
 sourceCompatibility = '11'
 targetCompatibility = '11'
@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux:2.2.12.RELEASE'
-    implementation 'com.github.sep-es-br:openpmo-plugin-agreement-interface:1.0.5'
+    implementation 'com.github.sep-es-br:openpmo-plugin-agreement-interface:1.0.6'
 }
 
 publishing {
